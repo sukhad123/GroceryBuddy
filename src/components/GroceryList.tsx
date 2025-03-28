@@ -7,6 +7,7 @@ import GroceryItem from './GroceryItem';
 const GroceryList: React.FC = () => {
   const { filteredItems, clearCompletedItems } = useGrocery();
   
+  
   const completedItems = filteredItems.filter(item => item.completed);
   const pendingItems = filteredItems.filter(item => !item.completed);
   

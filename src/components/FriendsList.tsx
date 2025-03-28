@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState,useRef ,useEffect} from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserPlus, User, X, Mail, Users } from 'lucide-react';
 import { Friend, useGrocery } from '@/contexts/GroceryContext';
@@ -21,66 +21,84 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
-const FriendsList: React.FC = () => {
+const FriendsList: React.FC<any> = (userEmail ) => {
+
   const { friends, addFriend, removeFriend, loading } = useGrocery();
+
+  const friends123 = useRef<Friend[]>([]);
   const { getAllUsers, user: currentUser } = useAuth();
   const [isAdding, setIsAdding] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [searchBy, setSearchBy] = useState<'username' | 'email'>('username');
   const [submitting, setSubmitting] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string>('');
-
+  const availableUsers = useRef<{id: string; username: string; email: string; avatarUrl: string}[]>([])
   // Get all available users that are not the current user and not already friends
-  const getAvailableUsers = () => {
-    const allUsers = getAllUsers();
-    return allUsers.filter(u => 
-      u.id !== currentUser?.id && 
-      !friends.some(f => f.id === u.id)
-    );
-  };
+  useEffect(() => {
+    getAvailableUsers();
+  }, []); // Empty dependency array to run only once
+  
+  const getAvailableUsers = async () => {
+   //get all the users from the database
+ //  try {
+  const response = await fetch('http://localhost:3000/api/getAllUsers', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({  adminUser:userEmail.userEmail}),
+   
+  });
+  const data = await response.json();
+
+  const filteredUsers = data.data.filter(
+    (user: { id: string; email: string }) =>
+      user.email !== userEmail.userEmail
+  );
+ 
+  
+ availableUsers.current = filteredUsers;
+ friends123.current =data.friends;
+ 
+} 
 
   const handleAddFriend = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!selectedUserId) {
-      toast.error("Please select a user from the dropdown");
-      return;
-    }
-    
-    try {
-      setSubmitting(true);
-      const allUsers = getAllUsers();
-      const foundUser = allUsers.find(u => u.id === selectedUserId);
-      
-      if (!foundUser) {
-        toast.error("User not found");
-        setSubmitting(false);
-        return;
-      }
-      
-      await addFriend({
-        id: foundUser.id,
-        username: foundUser.username,
-        avatarUrl: foundUser.avatarUrl,
-        email: foundUser.email
+    console.log("Reloading")
+    //window.location.reload();
+
+   
+
+    //save the user with this email to the same group
+    try{
+      const response = await fetch(`http://localhost:3000/api/addUser`,{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ newUserEmail: selectedUserId, adminUser:userEmail.userEmail}),
       });
-      
-      setSelectedUserId('');
-      setIsAdding(false);
-      toast.success(`${foundUser.username} added to your friends list!`);
-    } catch (error) {
-      console.error('Error in form submission:', error);
-      toast.error("Failed to add friend");
-    } finally {
-      setSubmitting(false);
+     
     }
+    catch(err){
+      console.log(err);
+
+    }
+
+  
+    
+   
+      
+    
+      
+  
   };
 
   const handleRemoveFriend = async (id: string) => {
     await removeFriend(id);
   };
 
-  if (loading && friends.length === 0) {
+  /*if (loading && friends.length === 0) {
     return (
       <div className="mb-6">
         <h3 className="text-lg font-medium mb-4">Friends</h3>
@@ -89,14 +107,15 @@ const FriendsList: React.FC = () => {
         </div>
       </div>
     );
-  }
+  }*/
 
-  const availableUsers = getAvailableUsers();
+  //const availableUsers =  getAvailableUsers();
+ 
 
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-medium">Friends ({friends.length})</h3>
+        <h3 className="text-lg font-medium">Friends ({friends123.current.length})</h3>
         {!isAdding && (
           <button
             onClick={() => setIsAdding(true)}
@@ -135,7 +154,8 @@ const FriendsList: React.FC = () => {
                   Select User to Add as Friend
                 </label>
                 
-                {availableUsers.length > 0 ? (
+                {availableUsers.current.length > 0 ? (
+                  <>
                   <Select 
                     value={selectedUserId} 
                     onValueChange={setSelectedUserId}
@@ -144,15 +164,11 @@ const FriendsList: React.FC = () => {
                       <SelectValue placeholder="Select a user to add" />
                     </SelectTrigger>
                     <SelectContent>
-                      {availableUsers.map(user => (
-                        <SelectItem key={user.id} value={user.id}>
+                      {availableUsers.current.map(user => (
+                        <SelectItem key={user.email} value={user.email}>
                           <div className="flex items-center gap-2">
-                            <img 
-                              src={user.avatarUrl} 
-                              alt={user.username} 
-                              className="w-6 h-6 rounded-full"
-                            />
-                            <span>{user.username}</span>
+                          
+                           
                             {user.email && (
                               <span className="text-xs text-muted-foreground ml-1">
                                 ({user.email})
@@ -162,7 +178,12 @@ const FriendsList: React.FC = () => {
                         </SelectItem>
                       ))}
                     </SelectContent>
+                    
                   </Select>
+                  <div>
+</div>
+                  </>
+                  
                 ) : (
                   <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
                     No available users to add as friends
@@ -187,7 +208,7 @@ const FriendsList: React.FC = () => {
         )}
       </AnimatePresence>
       
-      {friends.length === 0 ? (
+      {friends123.current.length === 0 ? (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -202,7 +223,7 @@ const FriendsList: React.FC = () => {
       ) : (
         <ul className="space-y-2">
           <AnimatePresence>
-            {friends.map(friend => (
+            {friends123.current.map(friend => (
               <motion.li
                 key={friend.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -211,12 +232,8 @@ const FriendsList: React.FC = () => {
                 className="glass flex items-center justify-between p-3 rounded-xl group"
               >
                 <div className="flex items-center gap-3">
-                  <img
-                    src={friend.avatarUrl}
-                    alt={friend.username}
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                  <span className="font-medium">{friend.username}</span>
+                  
+                  <span className="font-medium">{friend.email}</span>
                 </div>
                 <button
                   onClick={() => handleRemoveFriend(friend.id)}

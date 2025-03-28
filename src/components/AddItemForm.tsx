@@ -15,18 +15,26 @@ const AddItemForm: React.FC = () => {
     'Produce', 'Dairy', 'Bakery', 'Meat', 'Frozen', 'Pantry', 'Other'
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent)  => {
     e.preventDefault();
-    if (itemName.trim()) {
-      const priceValue = parseFloat(price) || 0;
-      addItem(itemName, category, priceValue);
-      setItemName('');
+    const adminUser = localStorage.getItem('userEmail');
+    
+    //itemName, category, priceValue
+    const response = await fetch(`http://localhost:3000/api/addItem`,{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ itemName, category, adminUser }),
+    });
+    setItemName('');
       setCategory('Other');
-      setPrice('');
+
       if (window.innerWidth < 768) {
         setIsExpanded(false);
       }
-    }
+      window.location.reload();
+    
   };
 
   return (
@@ -87,19 +95,8 @@ const AddItemForm: React.FC = () => {
               </div>
               
               <div>
-                <label htmlFor="price" className="block text-sm font-medium mb-1">
-                  Price
-                </label>
-                <input
-                  id="price"
-                  type="number"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  placeholder="0.00"
-                  step="0.01"
-                  min="0"
-                  className="w-full p-3 rounded-lg border border-input bg-background/50 focus:outline-none focus:ring-1 focus:ring-primary"
-                />
+              
+                
               </div>
             </div>
             

@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion';
 import { ShoppingCart, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -11,10 +10,17 @@ import FriendsList from '@/components/FriendsList';
 import ApiLogs from '@/components/ApiLogs';
 import { useAuth } from '@/contexts/AuthContext';
 import ThemeToggle from '@/components/ThemeToggle';
+import {useNavigate} from 'react-router-dom'
 
 const main = () => {
+
   const { user } = useAuth();
-  
+  const navigate = useNavigate();
+  const userEmail:string = localStorage.getItem('userEmail');
+  if(!userEmail){
+    //redirect to login page if no user 
+    navigate('/');
+  }
   return (
     <div className="min-h-screen max-w-2xl mx-auto px-4 py-8 md:py-12">
       <motion.div
@@ -30,7 +36,9 @@ const main = () => {
         <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 mb-4">
           <ShoppingCart size={28} className="text-primary" />
         </div>
-        <h1 className="text-3xl md:text-4xl font-bold mb-1">Grocery List</h1>
+        <h1 className="font-bold text-2xl mb-1">
+          Welcome, <span className="text-primary">{userEmail}</span>!
+        </h1>
         <p className="text-muted-foreground">Keep track of everything you need to buy</p>
         
         <Link to="/chat" className="inline-block mt-4">
@@ -48,7 +56,7 @@ const main = () => {
         className="max-w-xl mx-auto"
       >
       
-       <FriendsList />
+       <FriendsList userEmail ={userEmail} />
  
             <AddItemForm />
             <CategoryFilter />
@@ -63,9 +71,8 @@ const main = () => {
   );
 };
 
-// Index no longer needs to wrap with providers since they're now at the App level
 const Main = () => {
   return <main />;
 };
 
-export default Main;
+export default main;
