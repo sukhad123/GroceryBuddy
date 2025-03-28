@@ -41,7 +41,7 @@ const AddItemForm: React.FC = () => {
       if (window.innerWidth < 768) {
         setIsExpanded(false);
       }
-      window.location.reload();
+      //window.location.reload();
     
   };
 

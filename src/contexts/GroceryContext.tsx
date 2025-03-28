@@ -322,7 +322,9 @@ useEffect(() => {
   const deleteItem = async (id: string) => {
    console.log(id);
    const response = await deleteItemm(id);
-   window.location.reload();
+   const updatedItems = items.filter(item=>item.id !== id);
+   setItems(updatedItems);
+   //window.location.reload();
   };
 
   // Edit item
