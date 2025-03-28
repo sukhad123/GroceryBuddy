@@ -118,7 +118,7 @@ const [items, setItems] = useState<Item[]>([]);
   const getAvailableItems = async () => {
    //get all the users from the database
  //  try {
-  const response = await fetch('http://localhost:3000/api/getItems', {
+  const response = await fetch('https://grocery-backend-rose.vercel.app/api/getItems', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ const [items, setItems] = useState<Item[]>([]);
 const deleteItemm = async (id:string) => {
   //get all the users from the database
 //  try {
- const response = await fetch('http://localhost:3000/api/deleteItem', {
+ const response = await fetch('https://grocery-backend-rose.vercel.app/api/deleteItem', {
    method: 'POST',
    headers: {
      'Content-Type': 'application/json',

@@ -9,7 +9,7 @@ const GroceryList: React.FC = () => {
 
   
   const completedItems = filteredItems.filter(item => item.completed);
- 
+ console.log(completedItems);
   const pendingItems = filteredItems.filter(item => !item.completed);
   
   return (
