@@ -71,7 +71,7 @@ const FriendsList: React.FC<any> = (userEmail ) => {
 
     //save the user with this email to the same group
     try{
-      const response = await fetch(`http://localhost:3000/api/addUser`,{
+      const response = await fetch(`https://grocery-backend-rose.vercel.app/api/addUser`,{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

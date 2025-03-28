@@ -126,7 +126,7 @@ const InstagramAuth: React.FC = () => {
   const handleCreateGroup = async () => {
     console.log("Creating group:", groupName);
     try {
-      const response = await fetch('http://localhost:3000/api/createGroup', {
+      const response = await fetch('https://grocery-backend-rose.vercel.app/api/createGroup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
