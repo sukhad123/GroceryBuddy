@@ -6,9 +6,10 @@ import GroceryItem from './GroceryItem';
 
 const GroceryList: React.FC = () => {
   const { filteredItems, clearCompletedItems } = useGrocery();
-  
+
   
   const completedItems = filteredItems.filter(item => item.completed);
+ 
   const pendingItems = filteredItems.filter(item => !item.completed);
   
   return (
@@ -45,7 +46,7 @@ const GroceryList: React.FC = () => {
               </motion.div>
             )}
             
-            {completedItems.length > 0 && (
+           
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -69,7 +70,7 @@ const GroceryList: React.FC = () => {
                   </AnimatePresence>
                 </ul>
               </motion.div>
-            )}
+           
           </div>
         </>
       )}

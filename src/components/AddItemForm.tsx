@@ -18,7 +18,15 @@ const AddItemForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent)  => {
     e.preventDefault();
     const adminUser = localStorage.getItem('userEmail');
-    
+    if (!itemName.trim()) {
+      alert('Item name cannot be empty!');
+      return;
+    }
+  
+    if (!category) {
+      alert('Please select a valid category');
+      return;
+    }
     //itemName, category, priceValue
     const response = await fetch(`http://localhost:3000/api/addItem`,{
       method: 'POST',

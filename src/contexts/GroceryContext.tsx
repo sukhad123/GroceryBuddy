@@ -3,7 +3,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from './AuthContext';
 import { groceryApi, friendsApi } from '@/services/api';
-
+import {useRef} from 'react'
 // Define the Category type
 export type Category = 'All' | 'Produce' | 'Dairy' | 'Bakery' | 'Meat' | 'Frozen' | 'Pantry' | 'Other';
 
@@ -16,6 +16,14 @@ export interface GroceryItem {
   price: number;
   created_at: string;
   user_id: string;
+}
+export interface Item{
+name:string;
+price:number;
+category:string;
+id:string;
+completed: boolean;
+
 }
 
 // Define the Friend type with optional email property
@@ -50,6 +58,8 @@ const getItemsFromStorage = (userId: string): GroceryItem[] => {
   return storedItems ? JSON.parse(storedItems) : [];
 };
 
+const userEmail:string = localStorage.getItem('userEmail');
+
 // Save items to localStorage
 const saveItemsToStorage = (userId: string, items: GroceryItem[]) => {
   const storageKey = `groceryItems_${userId}`;
@@ -83,60 +93,112 @@ export const useGrocery = () => {
 
 // GroceryProvider component
 export const GroceryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<GroceryItem[]>([]);
+const [items, setItems] = useState<Item[]>([]);
+
   const [friends, setFriends] = useState<Friend[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
   const [loading, setLoading] = useState(true);
   const { user, findUserByUsername, findUserByEmail, getAllUsers } = useAuth();
 
+  useEffect(() => {
+    if (user) {
+      fetchGroceryItems(); // Call to fetch items when the component mounts
+      //fetchFriends(); // Optional: Fetch friends as well if needed
+    }
+  }, [user]); // Trigger when the `user` object changes
+  
   // Compute filtered items based on selected category
   const filteredItems = selectedCategory === 'All'
     ? items
     : items.filter(item => item.category === selectedCategory);
 
   // Initialize or fetch data when user changes
-  useEffect(() => {
-    if (user?.isLoggedIn) {
-      fetchGroceryItems();
-      fetchFriends();
-    } else {
-      setItems([]);
-      setFriends([]);
-    }
-  }, [user]);
+  // Get all available users that are not the current user and not already friends
 
+  const getAvailableItems = async () => {
+   //get all the users from the database
+ //  try {
+  const response = await fetch('http://localhost:3000/api/getItems', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({  adminUser:userEmail}),
+   
+  });
+  const data = await response.json();
+ return data;
+
+  
+} 
+
+
+const deleteItemm = async (id:string) => {
+  //get all the users from the database
+//  try {
+ const response = await fetch('http://localhost:3000/api/deleteItem', {
+   method: 'POST',
+   headers: {
+     'Content-Type': 'application/json',
+   },
+   body: JSON.stringify({  id:id}),
+  
+ });
+ const data = await response.json();
+return data;
+
+ 
+} 
+
+
+const updateItem = async (id:string) => {
+  //get all the users from the database
+//  try {
+ const response = await fetch('https://grocery-backend-rose.vercel.app/api/updateItemStatus', {
+   method: 'POST',
+   headers: {
+     'Content-Type': 'application/json',
+   },
+   body: JSON.stringify({  id:id}),
+  
+ });
+ const data = await response.json();
+return data;
+
+ 
+} 
+useEffect(() => {
+  fetchGroceryItems();
+}, []); // Empty dependency array means it runs once when component mounts
   // Fetch grocery items
   const fetchGroceryItems = async () => {
-    if (!user) return;
+  
     
     try {
       setLoading(true);
       
       // Make an API call to the backend for items
-      const response = await groceryApi.getItems(user.id);
-      
-      // If the API call fails, fall back to localStorage
-      if (!response.success) {
-        console.warn("Failed to fetch items from API, falling back to localStorage");
-        const userItems = getItemsFromStorage(user.id);
-        setItems(userItems);
-        return;
+      const response = await getAvailableItems();
+      const mappedItems = response.items.map((item: any) => ({
+        id: item.id,
+        name: item.itemName,
+        category: item.itemType,
+        completed:item.completed,
+        price: item.itemPrice,
+        
+      }));
+      console.log(mappedItems);
+      if(response){
+        setItems(mappedItems);
       }
-      
-      // If we got data from the API but it's empty, use localStorage
-      if (!response.data || response.data.length === 0) {
-        const userItems = getItemsFromStorage(user.id);
-        setItems(userItems);
-      } else {
-        setItems(response.data);
-      }
+     
+     
     } catch (error) {
       console.error('Error fetching grocery items:', error);
       toast.error('Failed to load your grocery items');
       
       // Fallback to localStorage
-      const userItems = getItemsFromStorage(user.id);
-      setItems(userItems);
+      
     } finally {
       setLoading(false);
     }
@@ -220,8 +282,12 @@ export const GroceryProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   // Toggle item
+
   const toggleItem = async (id: string) => {
-    if (!user) return;
+    console.log(id);
+    await updateItem(id);
+
+    //update the item as completed in database
     
     try {
       const item = items.find(item => item.id === id);
@@ -254,28 +320,9 @@ export const GroceryProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Delete item
   const deleteItem = async (id: string) => {
-    if (!user) return;
-    
-    try {
-      // Update local state
-      const updatedItems = items.filter(item => item.id !== id);
-      setItems(updatedItems);
-      
-      // Update storage
-      saveItemsToStorage(user.id, updatedItems);
-      
-      // Make an API call to the backend
-      const response = await groceryApi.deleteItem(user.id, id);
-      
-      if (!response.success) {
-        console.warn("Failed to delete item on server, but deleted locally");
-      }
-      
-      toast.info('Item removed from your list');
-    } catch (error) {
-      console.error('Error deleting item:', error);
-      toast.error('Failed to delete item');
-    }
+   console.log(id);
+   const response = await deleteItemm(id);
+   window.location.reload();
   };
 
   // Edit item

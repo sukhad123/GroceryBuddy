@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { useGrocery, Category } from '@/contexts/GroceryContext';
 import { cn } from '@/lib/utils';
 
-const CategoryFilter: React.FC = () => {
+
+const CategoryFilter: React.FC<any> = ( ) => {
   const { selectedCategory, setSelectedCategory } = useGrocery();
   
   const categories: Category[] = [

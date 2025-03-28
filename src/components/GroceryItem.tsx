@@ -77,6 +77,7 @@ const GroceryItem: React.FC<GroceryItemProps> = ({ item }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.2 }}
+      
       className={cn(
         "glass px-4 py-3 rounded-xl mb-3 flex items-center gap-3 group",
         item.completed && "bg-opacity-50 text-muted-foreground"

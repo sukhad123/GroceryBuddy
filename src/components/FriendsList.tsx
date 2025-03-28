@@ -25,7 +25,8 @@ const FriendsList: React.FC<any> = (userEmail ) => {
 
   const { friends, addFriend, removeFriend, loading } = useGrocery();
 
-  const friends123 = useRef<Friend[]>([]);
+  const [friends123, setFriends123] = useState<Friend[]>([]);
+
   const { getAllUsers, user: currentUser } = useAuth();
   const [isAdding, setIsAdding] = useState(false);
   const [searchInput, setSearchInput] = useState('');
@@ -36,12 +37,13 @@ const FriendsList: React.FC<any> = (userEmail ) => {
   // Get all available users that are not the current user and not already friends
   useEffect(() => {
     getAvailableUsers();
+    
   }, []); // Empty dependency array to run only once
   
   const getAvailableUsers = async () => {
    //get all the users from the database
  //  try {
-  const response = await fetch('http://localhost:3000/api/getAllUsers', {
+  const response = await fetch('https://grocery-backend-rose.vercel.app/api/getAllUsers', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -58,7 +60,7 @@ const FriendsList: React.FC<any> = (userEmail ) => {
  
   
  availableUsers.current = filteredUsers;
- friends123.current =data.friends;
+ setFriends123(data.friends);
  
 } 
 
@@ -115,7 +117,7 @@ const FriendsList: React.FC<any> = (userEmail ) => {
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-medium">Friends ({friends123.current.length})</h3>
+        <h3 className="text-lg font-medium">Friends ({friends123.length})</h3>
         {!isAdding && (
           <button
             onClick={() => setIsAdding(true)}
@@ -208,7 +210,7 @@ const FriendsList: React.FC<any> = (userEmail ) => {
         )}
       </AnimatePresence>
       
-      {friends123.current.length === 0 ? (
+      {friends123.length === 0 ? (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -223,7 +225,7 @@ const FriendsList: React.FC<any> = (userEmail ) => {
       ) : (
         <ul className="space-y-2">
           <AnimatePresence>
-            {friends123.current.map(friend => (
+            {friends123.map(friend => (
               <motion.li
                 key={friend.id}
                 initial={{ opacity: 0, y: 10 }}

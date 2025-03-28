@@ -59,7 +59,7 @@ const main = () => {
        <FriendsList userEmail ={userEmail} />
  
             <AddItemForm />
-            <CategoryFilter />
+            <CategoryFilter  />
             <GroceryList />
          
  
