@@ -28,7 +28,7 @@ const AddItemForm: React.FC = () => {
       return;
     }
     //itemName, category, priceValue
-    const response = await fetch(`http://localhost:3000/api/addItem`,{
+    const response = await fetch(`https://grocery-backend-rose.vercel.app/api/addItem`,{
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
