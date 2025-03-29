@@ -80,6 +80,8 @@ const FriendsList: React.FC<any> = (userEmail ) => {
         },
         body: JSON.stringify({ newUserEmail: selectedUserId, adminUser:userEmail.userEmail}),
       });
+      //update the friends list
+      await getAvailableUsers();
      
     }
     catch(err){

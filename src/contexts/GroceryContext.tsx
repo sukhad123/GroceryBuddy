@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from './AuthContext';
@@ -17,13 +16,14 @@ export interface GroceryItem {
   created_at: string;
   user_id: string;
 }
-export interface Item{
-name:string;
-price:number;
-category:string;
-id:string;
-completed: boolean;
-
+export interface Item {
+  id: string;
+  name: string;
+  category: Exclude<Category, 'All'>;
+  completed: boolean;
+  price: number;
+  created_at: string;
+  user_id: string;
 }
 
 // Define the Friend type with optional email property
@@ -49,6 +49,7 @@ interface GroceryContextType {
   addFriend: (friend: Friend) => Promise<void>;
   removeFriend: (id: string) => Promise<void>;
   loading: boolean;
+  getAvailableItems: () => Promise<any>;
 }
 
 // Get items from localStorage
@@ -90,11 +91,21 @@ export const useGrocery = () => {
   }
   return context;
 };
+const getAvailableItems = async () => {
+  const response = await fetch('https://grocery-backend-rose.vercel.app/api/getItems', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ adminUser: userEmail }),
+  });
+  const data = await response.json();
+  return data;
+};
 
 // GroceryProvider component
 export const GroceryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-const [items, setItems] = useState<Item[]>([]);
-
+  const [items, setItems] = useState<Item[]>([]);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
   const [loading, setLoading] = useState(true);
@@ -102,78 +113,16 @@ const [items, setItems] = useState<Item[]>([]);
 
   useEffect(() => {
     if (user) {
-      fetchGroceryItems(); // Call to fetch items when the component mounts
-      //fetchFriends(); // Optional: Fetch friends as well if needed
+      fetchGroceryItems();
     }
-  }, [user]); // Trigger when the `user` object changes
-  
-  // Compute filtered items based on selected category
-  const filteredItems = selectedCategory === 'All'
-    ? items
-    : items.filter(item => item.category === selectedCategory);
+  }, [user]);
 
-  // Initialize or fetch data when user changes
-  // Get all available users that are not the current user and not already friends
+  useEffect(() => {
+    fetchGroceryItems();
+  }, []);
 
-  const getAvailableItems = async () => {
-   //get all the users from the database
- //  try {
-  const response = await fetch('https://grocery-backend-rose.vercel.app/api/getItems', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({  adminUser:userEmail}),
-   
-  });
-  const data = await response.json();
- return data;
-
-  
-} 
-
-
-const deleteItemm = async (id:string) => {
-  //get all the users from the database
-//  try {
- const response = await fetch('https://grocery-backend-rose.vercel.app/api/deleteItem', {
-   method: 'POST',
-   headers: {
-     'Content-Type': 'application/json',
-   },
-   body: JSON.stringify({  id:id}),
-  
- });
- const data = await response.json();
-return data;
-
- 
-} 
-
-
-const updateItem = async (id:string) => {
-  //get all the users from the database
-//  try {
- const response = await fetch('https://grocery-backend-rose.vercel.app/api/updateItemStatus', {
-   method: 'POST',
-   headers: {
-     'Content-Type': 'application/json',
-   },
-   body: JSON.stringify({  id:id}),
-  
- });
- const data = await response.json();
-return data;
-
- 
-} 
-useEffect(() => {
-  fetchGroceryItems();
-}, []); // Empty dependency array means it runs once when component mounts
   // Fetch grocery items
   const fetchGroceryItems = async () => {
-  
-    
     try {
       setLoading(true);
       
@@ -183,26 +132,63 @@ useEffect(() => {
         id: item.id,
         name: item.itemName,
         category: item.itemType,
-        completed:item.completed,
+        completed: item.completed,
         price: item.itemPrice,
-        
       }));
-      console.log(mappedItems);
+      
       if(response){
         setItems(mappedItems);
       }
-     
-     
     } catch (error) {
       console.error('Error fetching grocery items:', error);
       toast.error('Failed to load your grocery items');
-      
-      // Fallback to localStorage
-      
     } finally {
       setLoading(false);
     }
   };
+
+  // Compute filtered items based on selected category
+  const filteredItems = selectedCategory === 'All'
+    ? items
+    : items.filter(item => item.category === selectedCategory);
+
+  // Initialize or fetch data when user changes
+  // Get all available users that are not the current user and not already friends
+
+  const deleteItemm = async (id:string) => {
+    //get all the users from the database
+  //  try {
+   const response = await fetch('https://grocery-backend-rose.vercel.app/api/deleteItem', {
+     method: 'POST',
+     headers: {
+       'Content-Type': 'application/json',
+     },
+     body: JSON.stringify({  id:id}),
+    
+   });
+   const data = await response.json();
+  return data;
+
+   
+  } 
+
+
+  const updateItem = async (id:string) => {
+    //get all the users from the database
+  //  try {
+   const response = await fetch('https://grocery-backend-rose.vercel.app/api/updateItemStatus', {
+     method: 'POST',
+     headers: {
+       'Content-Type': 'application/json',
+     },
+     body: JSON.stringify({  id:id}),
+    
+   });
+   const data = await response.json();
+  return data;
+
+   
+  } 
 
   // Fetch friends
   const fetchFriends = async () => {
@@ -508,7 +494,8 @@ useEffect(() => {
         clearCompletedItems,
         addFriend,
         removeFriend,
-        loading
+        loading,
+        getAvailableItems
       }}
     >
       {children}

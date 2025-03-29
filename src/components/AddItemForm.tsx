@@ -1,11 +1,10 @@
-
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
-import { useGrocery, Category } from '@/contexts/GroceryContext';
+import { useGrocery, fetchGroceryItems } from '@/contexts/GroceryContext';
 
 const AddItemForm: React.FC = () => {
-  const { addItem } = useGrocery();
+  const { addItem, getAvailableItems } = useGrocery();
   const [itemName, setItemName] = useState('');
   const [category, setCategory] = useState<Exclude<Category, 'All'>>('Other');
   const [price, setPrice] = useState<string>('');
@@ -35,14 +34,21 @@ const AddItemForm: React.FC = () => {
       },
       body: JSON.stringify({ itemName, category, adminUser }),
     });
-    setItemName('');
+    
+    if (response.ok) {
+      setItemName('');
       setCategory('Other');
 
       if (window.innerWidth < 768) {
         setIsExpanded(false);
       }
-      //window.location.reload();
-    
+      
+      // Refresh the items list after adding a new item
+    // fetchGroceryItems();
+    window.location.reload();
+    } else {
+      console.error('Failed to add item');
+    }
   };
 
   return (
