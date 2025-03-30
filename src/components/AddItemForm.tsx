@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
-import { useGrocery } from '@/contexts/GroceryContext';
+import { useGrocery, Category } from '@/contexts/GroceryContext';
 
 const AddItemForm: React.FC = () => {
 
@@ -17,7 +17,6 @@ const AddItemForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent)  => {
     e.preventDefault();
-    const adminUser = localStorage.getItem('userEmail');
     if (!itemName.trim()) {
       alert('Item name cannot be empty!');
       return;
@@ -27,9 +26,12 @@ const AddItemForm: React.FC = () => {
       alert('Please select a valid category');
       return;
     }
-    addItem(itemName,category, adminUser);
-    //itemName, category, priceValue
-   
+    await addItem(itemName, category, 0);
+    setItemName('');
+    setCategory('Other');
+    if (window.innerWidth < 768) {
+      setIsExpanded(false);
+    }
   };
 
   return (
