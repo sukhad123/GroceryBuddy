@@ -243,7 +243,7 @@ useEffect(() => {
   };
 
   // Add item
-  const addItem = async (name: string, category: string, adminUser: string) => {
+  const addItem = async (name: string, category: string, ) => {
     
     
     console.log("hi");
@@ -253,7 +253,7 @@ useEffect(() => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ itemName:name, category, adminUser }),
+      body: JSON.stringify({ itemName:name, category, adminUser:userEmail }),
     });
     
     if (response.ok) {

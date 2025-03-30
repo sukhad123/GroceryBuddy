@@ -26,7 +26,7 @@ const AddItemForm: React.FC = () => {
       alert('Please select a valid category');
       return;
     }
-    await addItem(itemName, category, 0);
+    await addItem(itemName, category);
     setItemName('');
     setCategory('Other');
     if (window.innerWidth < 768) {
