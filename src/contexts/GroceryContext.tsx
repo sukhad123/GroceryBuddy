@@ -91,21 +91,11 @@ export const useGrocery = () => {
   }
   return context;
 };
-const getAvailableItems = async () => {
-  const response = await fetch('https://grocery-backend-rose.vercel.app/api/getItems', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ adminUser: userEmail }),
-  });
-  const data = await response.json();
-  return data;
-};
 
 // GroceryProvider component
 export const GroceryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<Item[]>([]);
+const [items, setItems] = useState<Item[]>([]);
+
   const [friends, setFriends] = useState<Friend[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
   const [loading, setLoading] = useState(true);
@@ -113,16 +103,78 @@ export const GroceryProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   useEffect(() => {
     if (user) {
-      fetchGroceryItems();
+      fetchGroceryItems(); // Call to fetch items when the component mounts
+      //fetchFriends(); // Optional: Fetch friends as well if needed
     }
-  }, [user]);
+  }, [user]); // Trigger when the `user` object changes
+  
+  // Compute filtered items based on selected category
+  const filteredItems = selectedCategory === 'All'
+    ? items
+    : items.filter(item => item.category === selectedCategory);
 
-  useEffect(() => {
-    fetchGroceryItems();
-  }, []);
+  // Initialize or fetch data when user changes
+  // Get all available users that are not the current user and not already friends
 
+  const getAvailableItems = async () => {
+   //get all the users from the database
+ //  try {
+  const response = await fetch('https://grocery-backend-rose.vercel.app/api/getItems', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({  adminUser:userEmail}),
+   
+  });
+  const data = await response.json();
+ return data;
+
+  
+} 
+
+
+const deleteItemm = async (id:string) => {
+  //get all the users from the database
+//  try {
+ const response = await fetch('https://grocery-backend-rose.vercel.app/api/deleteItem', {
+   method: 'POST',
+   headers: {
+     'Content-Type': 'application/json',
+   },
+   body: JSON.stringify({  id:id}),
+  
+ });
+ const data = await response.json();
+return data;
+
+ 
+} 
+
+
+const updateItem = async (id:string) => {
+  //get all the users from the database
+//  try {
+ const response = await fetch('https://grocery-backend-rose.vercel.app/api/updateItemStatus', {
+   method: 'POST',
+   headers: {
+     'Content-Type': 'application/json',
+   },
+   body: JSON.stringify({  id:id}),
+  
+ });
+ const data = await response.json();
+return data;
+
+ 
+} 
+useEffect(() => {
+  fetchGroceryItems();
+}, []); // Empty dependency array means it runs once when component mounts
   // Fetch grocery items
   const fetchGroceryItems = async () => {
+  
+    
     try {
       setLoading(true);
       
@@ -132,63 +184,26 @@ export const GroceryProvider: React.FC<{ children: React.ReactNode }> = ({ child
         id: item.id,
         name: item.itemName,
         category: item.itemType,
-        completed: item.completed,
+        completed:item.completed,
         price: item.itemPrice,
+        
       }));
-      
+      console.log(mappedItems);
       if(response){
         setItems(mappedItems);
       }
+     
+     
     } catch (error) {
       console.error('Error fetching grocery items:', error);
       toast.error('Failed to load your grocery items');
+      
+      // Fallback to localStorage
+      
     } finally {
       setLoading(false);
     }
   };
-
-  // Compute filtered items based on selected category
-  const filteredItems = selectedCategory === 'All'
-    ? items
-    : items.filter(item => item.category === selectedCategory);
-
-  // Initialize or fetch data when user changes
-  // Get all available users that are not the current user and not already friends
-
-  const deleteItemm = async (id:string) => {
-    //get all the users from the database
-  //  try {
-   const response = await fetch('https://grocery-backend-rose.vercel.app/api/deleteItem', {
-     method: 'POST',
-     headers: {
-       'Content-Type': 'application/json',
-     },
-     body: JSON.stringify({  id:id}),
-    
-   });
-   const data = await response.json();
-  return data;
-
-   
-  } 
-
-
-  const updateItem = async (id:string) => {
-    //get all the users from the database
-  //  try {
-   const response = await fetch('https://grocery-backend-rose.vercel.app/api/updateItemStatus', {
-     method: 'POST',
-     headers: {
-       'Content-Type': 'application/json',
-     },
-     body: JSON.stringify({  id:id}),
-    
-   });
-   const data = await response.json();
-  return data;
-
-   
-  } 
 
   // Fetch friends
   const fetchFriends = async () => {
@@ -228,42 +243,34 @@ export const GroceryProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   // Add item
-  const addItem = async (name: string, category: Exclude<Category, 'All'>, price: number) => {
-    if (!user) return;
+  const addItem = async (name: string, category: string, adminUser: string) => {
     
-    try {
-      setLoading(true);
-      
-      const newItem: GroceryItem = {
-        id: `item-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-        name,
-        category,
-        completed: false,
-        price,
-        created_at: new Date().toISOString(),
-        user_id: user.id
-      };
-      
-      // Make an API call to the backend
-      const response = await groceryApi.addItem(user.id, newItem);
-      
-      if (!response.success) {
-        throw new Error(response.error || "Failed to add item on server");
+    
+    console.log("hi");
+
+    const response = await fetch(`https://grocery-backend-rose.vercel.app/api/addItem`,{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ itemName:name, category, adminUser }),
+    });
+    
+    if (response.ok) {
+      //setItemName('');
+      //setCategory('Other');
+      fetchGroceryItems();
+
+      if (window.innerWidth < 768) {
+        //setIsExpanded(false);
       }
+    
       
-      // Update local state
-      const updatedItems = [newItem, ...items];
-      setItems(updatedItems);
-      
-      // Update storage (local cache)
-      saveItemsToStorage(user.id, updatedItems);
-      
-      toast.success(`Added ${name} to your list`);
-    } catch (error: any) {
-      console.error('Error adding item:', error);
-      toast.error(error.message || 'Failed to add item');
-    } finally {
-      setLoading(false);
+      // Refresh the items list after adding a new item
+
+   // window.location.reload();
+    } else {
+      console.error('Failed to add item');
     }
   };
 

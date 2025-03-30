@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
-import { useGrocery, fetchGroceryItems } from '@/contexts/GroceryContext';
+import { useGrocery } from '@/contexts/GroceryContext';
 
 const AddItemForm: React.FC = () => {
+
   const { addItem, getAvailableItems } = useGrocery();
   const [itemName, setItemName] = useState('');
   const [category, setCategory] = useState<Exclude<Category, 'All'>>('Other');
@@ -26,29 +27,9 @@ const AddItemForm: React.FC = () => {
       alert('Please select a valid category');
       return;
     }
+    addItem(itemName,category, adminUser);
     //itemName, category, priceValue
-    const response = await fetch(`https://grocery-backend-rose.vercel.app/api/addItem`,{
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ itemName, category, adminUser }),
-    });
-    
-    if (response.ok) {
-      setItemName('');
-      setCategory('Other');
-
-      if (window.innerWidth < 768) {
-        setIsExpanded(false);
-      }
-      
-      // Refresh the items list after adding a new item
-    // fetchGroceryItems();
-    window.location.reload();
-    } else {
-      console.error('Failed to add item');
-    }
+   
   };
 
   return (
