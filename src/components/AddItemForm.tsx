@@ -26,6 +26,11 @@ const AddItemForm: React.FC = () => {
       alert('Please select a valid category');
       return;
     }
+
+    //use deepseek to validate the item and assign a
+
+    //verify the item and then add it to the database
+    
     await addItem(itemName, category);
     setItemName('');
     setCategory('Other');

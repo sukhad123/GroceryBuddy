@@ -124,7 +124,7 @@ const InstagramAuth: React.FC = () => {
   };
 
   const handleCreateGroup = async () => {
-    console.log("Creating group:", groupName);
+     console.log("email is ", userEmail.current);
     try {
       const response = await fetch('https://grocery-backend-rose.vercel.app/api/createGroup', {
         method: 'POST',
@@ -140,6 +140,8 @@ const InstagramAuth: React.FC = () => {
         return
     
       } else {
+
+        
         errRef.current = "";
       }
     } catch (err) {
@@ -287,18 +289,18 @@ const InstagramAuth: React.FC = () => {
        <motion.div
        initial={{ opacity: 0, y: 10 }}
        animate={{ opacity: 1, y: 0 }}
-       className="bg-white shadow-lg p-6 rounded-2xl w-full max-w-md mx-auto"
+       className="  shadow-lg p-6 rounded-2xl w-full max-w-md mx-auto"
      >
        <h3 className="font-semibold text-2xl text-center mb-4">Create or Join a Group</h3>
        <div className="space-y-6">
          {/* Create Group Section */}
-         <div className="p-4 bg-gray-100 rounded-xl">
-           <h4 className="font-medium text-lg mb-2">Create a New Group</h4>
+         <div className="p-4 bg-secondary/50 dark:bg-secondary/20 rounded-xl border border-border">
+           <h4 className="font-medium text-lg mb-2 text-foreground">Create a New Group</h4>
            <Input 
              placeholder="Group Name" 
              value={groupName} 
              onChange={(e) => setGroupName(e.target.value)} 
-             className="mb-3"
+             className="mb-3 bg-background/50 dark:bg-background/20"
            />
            <Button onClick={handleCreateGroup} className="w-full py-2 text-lg">
              Create Group
@@ -306,10 +308,13 @@ const InstagramAuth: React.FC = () => {
          </div>
          
          {/* Join Group Section */}
-         <div className="p-4 bg-gray-100 rounded-xl">
-           <h4 className="font-medium text-lg mb-2">Join an Existing Group<br></br>Let your friends know about you and ask them to add in that group</h4>
-          
-
+         <div className="bg-secondary/50 dark:bg-secondary/20 p-4 rounded-xl border border-border">
+           <h4 className="font-medium text-lg mb-2 text-foreground">Join an Existing Group</h4>
+           <p className="text-sm text-muted-foreground mb-4">Let your friends know about you and ask them to add you to their group</p>
+            
+           <Button onClick={handleJoinGroup} className="w-full py-2 text-lg">
+             Join Group
+           </Button>
          </div>
        </div>
      </motion.div>

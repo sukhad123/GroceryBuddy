@@ -16,7 +16,9 @@ const main = () => {
 
   const { user } = useAuth();
   const navigate = useNavigate();
-  const userEmail:string = localStorage.getItem('userEmail');
+  const userEmail = localStorage.getItem('userEmail');
+  console.log("Email is" ,userEmail);
+ 
   if(!userEmail){
     //redirect to login page if no user 
     navigate('/');
@@ -56,7 +58,7 @@ const main = () => {
         className="max-w-xl mx-auto"
       >
       
-       <FriendsList userEmail ={userEmail} />
+       <FriendsList userEmail={{ userEmail }} />
  
             <AddItemForm />
             <CategoryFilter  />
@@ -65,8 +67,7 @@ const main = () => {
  
       </motion.div>
       
-      {/* API Logs component for debugging */}
-      <ApiLogs />
+      
     </div>
   );
 };

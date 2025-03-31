@@ -1,4 +1,3 @@
-
 import { useState,useRef ,useEffect} from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserPlus, User, X, Mail, Users } from 'lucide-react';
@@ -21,7 +20,13 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
-const FriendsList: React.FC<any> = (userEmail ) => {
+interface FriendsListProps {
+  userEmail: {
+    userEmail: string;
+  };
+}
+
+const FriendsList: React.FC<FriendsListProps> = ({ userEmail }) => {
 
   const { friends, addFriend, removeFriend, loading } = useGrocery();
 
@@ -33,17 +38,18 @@ const FriendsList: React.FC<any> = (userEmail ) => {
   const [searchBy, setSearchBy] = useState<'username' | 'email'>('username');
   const [submitting, setSubmitting] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const [groupName, setGroupName] = useState<string>('');
   const availableUsers = useRef<{id: string; username: string; email: string; avatarUrl: string}[]>([])
   // Get all available users that are not the current user and not already friends
   useEffect(() => {
     getAvailableUsers();
-    
+     
   }, []); // Empty dependency array to run only once
   
   const getAvailableUsers = async () => {
    //get all the users from the database
  //  try {
-  const response = await fetch('https://grocery-backend-rose.vercel.app/api/getAllUsers', {
+  const response = await fetch(' https://grocery-backend-rose.vercel.app/api/getAllUsers', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -52,17 +58,47 @@ const FriendsList: React.FC<any> = (userEmail ) => {
    
   });
   const data = await response.json();
-
-  const filteredUsers = data.data.filter(
+ 
+  console.log(data.data);
+  console.log(data.friends);
+  const filteredUsers = data.friends.filter(
     (user: { id: string; email: string }) =>
       user.email !== userEmail.userEmail
   );
- 
-  
- availableUsers.current = filteredUsers;
- setFriends123(data.friends);
+
+  //set all the available users who aren't registered in any groups
+ availableUsers.current = data.data;
+ console.log("availale users are",availableUsers.current);
+ setFriends123(filteredUsers);
+ setGroupName(data.groupName);
  
 } 
+
+ 
+
+  const handleUpdateGroupName = async () => {
+    try {
+      const response = await fetch('https://grocery-backend-rose.vercel.app/api/updateGroupName', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          adminUser: userEmail.userEmail,
+          groupName: groupName 
+        }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast.success("Group name updated!");
+      } else {
+        toast.error("Failed to update group name");
+      }
+    } catch (error) {
+      console.error('Error updating group name:', error);
+      toast.error("Failed to update group name");
+    }
+  };
 
   const handleAddFriend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,6 +154,18 @@ const FriendsList: React.FC<any> = (userEmail ) => {
 
   return (
     <div className="mb-6">
+      {/* Group Name Section */}
+      <div className="glass p-4 rounded-xl mb-4">
+        <div className="flex items-center gap-3 p-4 bg-secondary/50 dark:bg-secondary/20 rounded-lg border border-border">
+          <div className="p-2 bg-primary/10 rounded-full">
+            <Users size={24} className="text-primary" />
+          </div>
+          <h2 className="text-lg font-bold text-foreground">
+            Group Name: <span className="text-primary">{groupName}</span>
+          </h2>
+        </div>
+      </div>
+
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-medium">Friends ({friends123.length})</h3>
         {!isAdding && (
@@ -144,12 +192,13 @@ const FriendsList: React.FC<any> = (userEmail ) => {
               <div className="flex items-center justify-between">
                 <h4 className="font-medium">Add Friend</h4>
                 <button
-                  type="button"
-                  onClick={() => setIsAdding(false)}
-                  className="p-1 rounded-full hover:bg-gray-100"
-                >
-                  <X size={16} />
-                </button>
+  type="button"
+  onClick={() => setIsAdding(false)}
+  className="p-1 rounded-full hover:bg-red-600 text-white hover:text-white transition-colors bg-gray-800"
+>
+  <X size={16} />
+</button>
+
               </div>
               
               <div className="flex flex-col gap-2">

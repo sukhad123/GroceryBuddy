@@ -13,7 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import ThemeToggle from '@/components/ThemeToggle';
 
 const GroceryApp = () => {
-  const { user } = useAuth();
+  
   
   return (
     <div className="min-h-screen max-w-2xl mx-auto px-4 py-8 md:py-12">
@@ -33,12 +33,7 @@ const GroceryApp = () => {
         <h1 className="text-3xl md:text-4xl font-bold mb-1">Grocery List</h1>
         <p className="text-muted-foreground">Keep track of everything you need to buy</p>
         
-        <Link to="/chat" className="inline-block mt-4">
-          <Button variant="outline" className="gap-2">
-            <MessageCircle size={16} />
-            Ask About Calories
-          </Button>
-        </Link>
+
       </motion.div>
       
       <motion.div
@@ -49,19 +44,12 @@ const GroceryApp = () => {
       >
         <InstagramAuth />
         
-        {user?.isLoggedIn && <FriendsList />}
         
-        {user?.isLoggedIn && (
-          <>
-            <AddItemForm />
-            <CategoryFilter />
-            <GroceryList />
-          </>
-        )}
+        
+       
       </motion.div>
       
-      {/* API Logs component for debugging */}
-      <ApiLogs />
+      
     </div>
   );
 };
