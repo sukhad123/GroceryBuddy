@@ -7,9 +7,9 @@ import { cn } from '@/lib/utils';
 const CategoryFilter: React.FC<any> = ( ) => {
   const { selectedCategory, setSelectedCategory } = useGrocery();
   
-  const categories: Category[] = [
+  /*const categories: Category[] = [
     'All', 'Produce', 'Dairy', 'Bakery', 'Meat', 'Frozen', 'Pantry', 'Other'
-  ];
+  ];*/
 
   return (
     <div className="mb-6 overflow-x-auto scrollbar-none">
@@ -19,14 +19,7 @@ const CategoryFilter: React.FC<any> = ( ) => {
         transition={{ duration: 0.3 }}
         className="flex gap-2 pb-1"
       >
-        {categories.map((category) => (
-          <CategoryButton 
-            key={category}
-            category={category}
-            isSelected={selectedCategory === category}
-            onClick={() => setSelectedCategory(category)}
-          />
-        ))}
+      
       </motion.div>
     </div>
   );

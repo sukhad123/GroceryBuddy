@@ -17,7 +17,7 @@ const main = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const userEmail = localStorage.getItem('userEmail');
-  console.log("Email is" ,userEmail);
+ 
  
   if(!userEmail){
     //redirect to login page if no user 

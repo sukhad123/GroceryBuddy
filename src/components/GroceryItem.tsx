@@ -24,11 +24,11 @@ const GroceryItem: React.FC<GroceryItemProps> = ({ item }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(item.name);
   const [editedCategory, setEditedCategory] = useState<Exclude<Category, 'All'>>(item.category);
-  const [editedPrice, setEditedPrice] = useState(item.price.toString());
+   
   const inputRef = useRef<HTMLInputElement>(null);
   
   const categories: Exclude<Category, 'All'>[] = [
-    'Produce', 'Dairy', 'Bakery', 'Meat', 'Frozen', 'Pantry', 'Other'
+    'Meat', 'Frozen', 'Food','Vegetables' ,'Other'
   ];
 
   useEffect(() => {
@@ -41,7 +41,7 @@ const GroceryItem: React.FC<GroceryItemProps> = ({ item }) => {
     setIsEditing(true);
     setEditedName(item.name);
     setEditedCategory(item.category);
-    setEditedPrice(item.price.toString());
+     
   };
 
   const handleSave = () => {
@@ -54,7 +54,7 @@ const GroceryItem: React.FC<GroceryItemProps> = ({ item }) => {
     setIsEditing(false);
     setEditedName(item.name);
     setEditedCategory(item.category);
-    setEditedPrice(item.price.toString());
+  //  setEditedPrice(item.price.toString());
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -68,7 +68,7 @@ const GroceryItem: React.FC<GroceryItemProps> = ({ item }) => {
   // Format price as currency
   const formattedPrice = new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD'
+    currency: 'CAD'
   }).format(item.price);
 
   return (
@@ -160,9 +160,9 @@ const GroceryItem: React.FC<GroceryItemProps> = ({ item }) => {
                 )}>
                   {item.category}
                 </span>
-                <span className="text-sm font-semibold text-primary">
+               {/*<span className="text-sm font-semibold text-primary">
                   {formattedPrice}
-                </span>
+                </span>*/}
               </div>
             </div>
             <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">

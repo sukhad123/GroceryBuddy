@@ -47,34 +47,35 @@ const FriendsList: React.FC<FriendsListProps> = ({ userEmail }) => {
   }, []); // Empty dependency array to run only once
   
   const getAvailableUsers = async () => {
-   //get all the users from the database
- //  try {
-  const response = await fetch(' https://grocery-backend-rose.vercel.app/api/getAllUsers', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({  adminUser:userEmail.userEmail}),
-   
-  });
-  const data = await response.json();
+    try {
+      const response = await fetch('https://grocery-backend-rose.vercel.app/api/getAllUsers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ adminUser: userEmail.userEmail }),
+      });
+      const data = await response.json();
  
-  console.log(data.data);
-  console.log(data.friends);
-  const filteredUsers = data.friends.filter(
-    (user: { id: string; email: string }) =>
-      user.email !== userEmail.userEmail
-  );
+      console.log("API Response:", data);
+      
+      // Update availableUsers.current with the data from the API
+      availableUsers.current = data.data || [];
+      console.log("Available users updated:", availableUsers.current);
 
-  //set all the available users who aren't registered in any groups
- availableUsers.current = data.data;
- console.log("availale users are",availableUsers.current);
- setFriends123(filteredUsers);
- setGroupName(data.groupName);
- 
-} 
+      // Filter friends to exclude the current user
+      const filteredUsers = data.friends.filter(
+        (user: { id: string; email: string }) =>
+          user.email !== userEmail.userEmail
+      );
 
- 
+      setFriends123(filteredUsers);
+      setGroupName(data.groupName || '');
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      toast.error('Failed to fetch users');
+    }
+  };
 
   const handleUpdateGroupName = async () => {
     try {
@@ -246,7 +247,7 @@ const FriendsList: React.FC<FriendsListProps> = ({ userEmail }) => {
               
               <Button
                 type="submit"
-                disabled={submitting || availableUsers.length === 0}
+                disabled={submitting || availableUsers.current.length === 0}
                 className="w-full"
               >
                 {submitting ? (

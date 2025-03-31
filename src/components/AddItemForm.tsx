@@ -1,19 +1,18 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
 import { useGrocery, Category } from '@/contexts/GroceryContext';
 
 const AddItemForm: React.FC = () => {
+  const category= useRef<String>('');
 
   const { addItem, getAvailableItems } = useGrocery();
   const [itemName, setItemName] = useState('');
-  const [category, setCategory] = useState<Exclude<Category, 'All'>>('Other');
+
   const [price, setPrice] = useState<string>('');
   const [isExpanded, setIsExpanded] = useState(false);
   
-  const categories: Exclude<Category, 'All'>[] = [
-    'Produce', 'Dairy', 'Bakery', 'Meat', 'Frozen', 'Pantry', 'Other'
-  ];
+
 
   const handleSubmit = async (e: React.FormEvent)  => {
     e.preventDefault();
@@ -22,18 +21,48 @@ const AddItemForm: React.FC = () => {
       return;
     }
   
-    if (!category) {
-      alert('Please select a valid category');
-      return;
-    }
-
+    
     //use deepseek to validate the item and assign a
 
     //verify the item and then add it to the database
+ 
+    //let's validate the item
+    //intialize with empty
+   category.current ='';
+     try {
+      // Make the API call to validate the item
+      const response = await fetch(
+        `https://kgsearch.googleapis.com/v1/entities:search?query=${itemName}&key=AIzaSyDfIPFlmFisBeMx_T0LBeP6Jfc6TG_8fYI&types=Food`
+      );
+      const data = await response.json();
+
+      // Validate the data using the function
+      const validItem = data.itemListElement.some((item: any) => {
+        const description = item.result?.description?.toLowerCase() || '';
+        const terms = ['fruit', 'vegetable', 'food', 'meat', 'dairy', 'pantry', 'other'];
+
+        // Check if any term is found in the description
+        const matchedTerm = terms.find((term) => description.includes(term));
+
+        if (matchedTerm) {
+          category.current = item.result.description; // Set category if a match is found
+        }
+      });
+
+      // Check if category has been updated and proceed to add the item
+      if (category.current) {
+        await addItem(itemName, category.current); // Add item if valid
+      } else {
+        alert('Please add a valid item');
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      alert('An error occurred while fetching data');
+    }    
+       
+
+ 
     
-    await addItem(itemName, category);
-    setItemName('');
-    setCategory('Other');
     if (window.innerWidth < 768) {
       setIsExpanded(false);
     }
@@ -80,21 +109,7 @@ const AddItemForm: React.FC = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="category" className="block text-sm font-medium mb-1">
-                  Category
-                </label>
-                <select
-                  id="category"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value as Exclude<Category, 'All'>)}
-                  className="w-full p-3 rounded-lg border border-input bg-background/50 focus:outline-none focus:ring-1 focus:ring-primary"
-                >
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
+              
               
               <div>
               

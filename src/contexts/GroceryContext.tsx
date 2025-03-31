@@ -4,7 +4,7 @@ import { useAuth } from './AuthContext';
 import { groceryApi, friendsApi } from '@/services/api';
 import {useRef} from 'react'
 // Define the Category type
-export type Category = 'All' | 'Produce' | 'Dairy' | 'Bakery' | 'Meat' | 'Frozen' | 'Pantry' | 'Other';
+export type Category = 'All' | 'Food' | 'Vegetables' | 'Meat'  | 'Frozen'  | 'Other';
 
 // Define the GroceryItem type with additional price property
 export interface GroceryItem {
