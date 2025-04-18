@@ -7,7 +7,7 @@
 - 🧑‍🤝‍🧑 **Collaborative Grocery Buying**: Shop together with friends, roommates, or family in shared grocery lists.
 - 🤖 **AI-Powered Insights**: Get personalized tips, recipe suggestions, budget breakdowns, and more through our smart chat assistant.
 - ⚛️ **Modern Frontend**: Built with React for smooth, responsive user experience.
-- 🧠 **Next.js Backend**: Handles API requests, chat processing, and user authentication.
+- 🧠 **Next.js Backend**:[GroceryGame App](https://github.com/sukhad123/GroceryBuddy_Backend)** — built using Next.js API Routes and designed to power the collaborative, AI-driven grocery experience. Handles API requests, chat processing, and user authentication. 
 - 📦 **Modular Design**: Clean folder structure to easily maintain frontend, backend, and AI components.
 
 ## 🖼️ Demo (Coming Soon)
