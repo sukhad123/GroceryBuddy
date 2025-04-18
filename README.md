@@ -19,8 +19,8 @@
 |--------------|-------------|
 | Frontend     | React, Tailwind CSS |
 | Backend      | Next.js (API routes), Node.js |
-| AI System    | OpenAI API / Custom NLP Logic |
-| Database     | TBD (e.g., MongoDB or Firebase) |
+| AI System    | Deepseek API  |
+| Database     | Prisma with PostgreSQL |
 | Version Control | Git + GitHub |
 
 ## 📁 Folder Structure
